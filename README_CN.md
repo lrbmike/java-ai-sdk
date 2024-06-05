@@ -6,6 +6,20 @@
 
 项目主要是对模型厂商的 REST API 进行封装，方便 JAVA 开发者调用，并仅引入了少量的依赖包，避免依赖包冲突。
 
+## 导入
+
+### Maven
+
+```xml
+<dependency>
+    <groupId>org.liurb.ai.sdk</groupId>
+    <artifactId>java-ai-sdk</artifactId>
+    <version>${version}</version>
+</dependency>
+```
+
+获取最新的版本号：[Maven Central](https://central.sonatype.com/artifact/org.liurb.ai.sdk/java-ai-sdk)
+
 ## Google Gemini
 
 更多的 REST API 信息，可在官方文档中获取 [Gemini API 概览](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn)

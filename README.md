@@ -6,6 +6,20 @@ The development of this JAVA-based AI SDK is primarily aimed at addressing the l
 
 The project mainly involves encapsulating the REST API provided by model manufacturers, making it convenient for JAVA developers to use. It also introduces only a minimal number of dependency packages to avoid conflicts.
 
+## Importing
+
+### Maven
+
+```xml
+<dependency>
+    <groupId>org.liurb.ai.sdk</groupId>
+    <artifactId>java-ai-sdk</artifactId>
+    <version>${version}</version>
+</dependency>
+```
+
+You can get the version here：[Maven Central](https://central.sonatype.com/artifact/org.liurb.ai.sdk/java-ai-sdk)
+
 ## Google Gemini
 
 For more information about the REST API, please refer to the official documentation. [Gemini API Overview](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn)
