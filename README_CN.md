@@ -2,34 +2,34 @@
 
 [English](README.md) | [中文简体](README_CN.md)
 
-The development of this JAVA-based AI SDK is primarily aimed at addressing the lack of adequate support for the JAVA environment in the SDK provided by mainstream model manufacturers, or the difficulties encountered when integrating them into existing business systems.
+开发这套 JAVA 版的 AI SDK，主要是目前主流模型厂商的 SDK 并没有很好的支持 JAVA 环境，或者集成到现有业务系统比较困难。
 
-The project mainly involves encapsulating the REST API provided by model manufacturers, making it convenient for JAVA developers to use. It also introduces only a minimal number of dependency packages to avoid conflicts.
+项目主要是对模型厂商的 REST API 进行封装，方便 JAVA 开发者调用，并仅引入了少量的依赖包，避免依赖包冲突。
 
 ## Google Gemini
 
-For more information about the REST API, please refer to the official documentation. [Gemini API Overview](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn)
+更多的 REST API 信息，可在官方文档中获取 [Gemini API 概览](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn)
 
-- [Text and image input](https://ai.google.dev/gemini-api/docs/api-overview#text_image_input) : It only supports the Gemini 1.5 model or the Gemini 1.0 Pro model.
-- [Text only input](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn#text_only_input)
-- [Multi-turn conversations (chat)](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn#chat)
-- [Streamed responses](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn#stream)
+- [文本和图片输入](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn#text_image_input) : 仅支持 Gemini 1.5 模型或 Gemini 1.0 Pro 模型
+- [纯文字输入](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn#text_only_input)
+- [多轮对话（聊天）](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn#chat)
+- [流式响应](https://ai.google.dev/gemini-api/docs/api-overview?hl=zh-cn#stream)
 
-## Usage
+### 使用
 
-Configure the  `API KEY`  through the `GeminiAccount` settings. If you need to use a reverse proxy, you can configure the  `BASE_URL`.
+通过 `GeminiAccount` 配置 `API KEY`，如果需要使用代理地址，可以配置 `BASE_URL`
 
 ```java
 GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 ```
 
-By default, the `models/gemini-1.5-flash` model is used, but you can also customize the configuration through the constructor.
+默认使用 `models/gemini-1.5-flash` 模型，当然也可以通过构造函数，自定义配置
 
 ```java
 public GeminiClient(String modelName, GeminiAccount geminiAccount) 
 ```
 
-Chat
+普通对话
 
 ```java
     @Test
@@ -46,7 +46,7 @@ Chat
 
 ```
 
-Multi-turn Chat
+多轮对话
 
 ```java
     @Test
@@ -68,7 +68,7 @@ Multi-turn Chat
     }
 ```
 
-Multimodal (with context)
+多模态（可带上下文）
 
 ```java
 @Test
@@ -101,7 +101,7 @@ Multimodal (with context)
     }
 ```
 
-In the current full conversation methods, the function of automatically implementing historical records has been realized. The caller can obtain the `history` through the returned `GeminiTextResponse` object.
+目前的全部对话中，已自动实现了历史记录的功能，调用者可通过返回的 `GeminiTextResponse` 对象中获取 `history`
 
 ```java
 @Data
@@ -115,6 +115,6 @@ public class GeminiTextResponse {
 }
 ```
 
-## Subsequent
+## 后续
 
-In the future, I plan to create a `Spring` version, or look at which model `SDKs` are currently difficult to use and will be added to this project. 
+后面打算做一个 `Spring` 版本，或者看看目前还有哪些比较难用的模型 `SDK`，就会加入到这个项目来。
