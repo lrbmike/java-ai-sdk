@@ -129,6 +129,22 @@ public class GeminiTextResponse {
 }
 ```
 
+## OpenAI
+
+更多的 REST API 信息，可在官方文档中获取 [API 介绍](https://platform.openai.com/docs/api-reference/authentication)
+
+- 多轮对话
+- [多模态](https://platform.openai.com/docs/guides/vision)
+- 流式响应
+
+### 使用
+
+使用方式与 `Google Gemini` 类似，具体可查看 `Test` 包的样例
+
+### 补充
+
+目前兼容一些免费的 `API` 接口，即能与 `/v1/chat/completions` 兼容的接口都可以，只要替换 `apiKey` 和 `baseUrl` 即可
+
 ## 后续
 
 后面打算做一个 `Spring` 版本，或者看看目前还有哪些比较难用的模型 `SDK`，就会加入到这个项目来。

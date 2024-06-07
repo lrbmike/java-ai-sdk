@@ -3,12 +3,13 @@ package org.liurb.ai.sdk.gemini;
 import com.alibaba.fastjson2.JSON;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.liurb.ai.sdk.common.bean.ChatHistory;
 import org.liurb.ai.sdk.gemini.bean.*;
 import org.liurb.ai.sdk.gemini.conf.GeminiAccount;
 import org.liurb.ai.sdk.gemini.dto.GeminiTextRequest;
 import org.liurb.ai.sdk.gemini.dto.GeminiTextResponse;
 import org.liurb.ai.sdk.gemini.enums.GeminiModelEnum;
-import org.liurb.ai.sdk.gemini.listener.StreamResponseListener;
+import org.liurb.ai.sdk.gemini.listener.GeminiStreamResponseListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -109,7 +110,7 @@ public class GeminiClient {
         return null;
     }
 
-    public void stream(String message, MultiPartInlineData inlineData, GenerationConfig generationConfig, StreamResponseListener responseListener) throws IOException {
+    public void stream(String message, MultiPartInlineData inlineData, GenerationConfig generationConfig, GeminiStreamResponseListener responseListener) throws IOException {
 
         if (this.geminiAccount == null || this.geminiAccount.getApiKey() == null || this.geminiAccount.getApiKey().isEmpty()) {
             throw new RuntimeException("gemini api key is empty");
@@ -189,9 +190,9 @@ public class GeminiClient {
 
             for (ChatHistory chat : history) {
 
-                if (chat instanceof ChatMultiHistory) {
-                    ChatMultiHistory chatMultiHistory = (ChatMultiHistory)chat;
-                    ChatTextMessage chatTextMessage = this.buildChatTextMessage(chatMultiHistory.getText(), chatMultiHistory.getRole(), chatMultiHistory.getInlineData());
+                if (chat instanceof GeminiChatMultiHistory) {
+                    GeminiChatMultiHistory geminiChatMultiHistory = (GeminiChatMultiHistory)chat;
+                    ChatTextMessage chatTextMessage = this.buildChatTextMessage(geminiChatMultiHistory.getText(), geminiChatMultiHistory.getRole(), geminiChatMultiHistory.getInlineData());
                     contents.add(chatTextMessage);
                 }else {
                     ChatTextMessage textMessage = this.buildChatTextMessage(chat.getText(), chat.getRole());
@@ -212,12 +213,7 @@ public class GeminiClient {
 
     private ChatTextMessage buildChatTextMessage(String text, String role) {
 
-        List<TextPart> parts = new ArrayList<>();
-
-        TextPart textPart = TextPart.builder().text(text).build();
-        parts.add(textPart);
-
-        return ChatTextMessage.builder().role(role).parts(parts).build();
+        return this.buildChatTextMessage(text, role, null);
     }
 
     private ChatTextMessage buildChatTextMessage(String text, String role, MultiPartInlineData inlineData) {
@@ -243,8 +239,8 @@ public class GeminiClient {
 
         // add user chat message
         if (inlineData != null) {
-            ChatMultiHistory chatMultiHistory = ChatMultiHistory.builder().text(message).role("user").inlineData(inlineData).build();
-            history.add(chatMultiHistory);
+            GeminiChatMultiHistory geminiChatMultiHistory = GeminiChatMultiHistory.builder().text(message).role("user").inlineData(inlineData).build();
+            history.add(geminiChatMultiHistory);
         }else{
             ChatHistory chatHistory = ChatHistory.builder().text(message).role("user").build();
             history.add(chatHistory);
@@ -271,8 +267,8 @@ public class GeminiClient {
 
         // add user chat message
         if (inlineData != null) {
-            ChatMultiHistory chatMultiHistory = ChatMultiHistory.builder().text(message).role("user").inlineData(inlineData).build();
-            history.add(chatMultiHistory);
+            GeminiChatMultiHistory geminiChatMultiHistory = GeminiChatMultiHistory.builder().text(message).role("user").inlineData(inlineData).build();
+            history.add(geminiChatMultiHistory);
         }else{
             ChatHistory chatHistory = ChatHistory.builder().text(message).role("user").build();
             history.add(chatHistory);
@@ -287,8 +283,6 @@ public class GeminiClient {
         if (history.size() > 10) {
             history = history.subList(0, 10);
         }
-
-        System.out.println("history:" + history);
 
         return history;
     }

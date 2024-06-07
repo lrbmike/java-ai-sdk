@@ -5,7 +5,7 @@ import org.liurb.ai.sdk.gemini.bean.GenerationConfig;
 import org.liurb.ai.sdk.gemini.GeminiClient;
 import org.liurb.ai.sdk.gemini.bean.MultiPartInlineData;
 import org.liurb.ai.sdk.gemini.conf.GeminiAccount;
-import org.liurb.ai.sdk.gemini.listener.StreamResponseListener;
+import org.liurb.ai.sdk.gemini.listener.GeminiStreamResponseListener;
 import org.liurb.ai.sdk.utils.Base64Util;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class GeminiStreamTest {
 
         // Stream and Multi-turn conversations
 
-//        client.stream("Do you know something about Yao Ming", null, generationConfig, new StreamResponseListener() {
+//        client.stream("Do you know something about Yao Ming", null, generationConfig, new GeminiStreamResponseListener() {
 //
 //            @Override
 //            public void accept(Content content) {
@@ -36,7 +36,7 @@ public class GeminiStreamTest {
 //
 //        Thread.sleep(30 * 1000);
 //
-//        client.stream("who is his wife", null, generationConfig, new StreamResponseListener() {
+//        client.stream("who is his wife", null, generationConfig, new GeminiStreamResponseListener() {
 //
 //            @Override
 //            public void accept(Content content) {
@@ -53,7 +53,7 @@ public class GeminiStreamTest {
 
         MultiPartInlineData inlineData = MultiPartInlineData.builder().mimeType("image/jpeg").data(base64).build();
 
-        client.stream("What is this picture", inlineData, generationConfig, new StreamResponseListener() {
+        client.stream("What is this picture", inlineData, generationConfig, new GeminiStreamResponseListener() {
 
             @Override
             public void accept(Content content) {

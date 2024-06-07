@@ -129,6 +129,22 @@ public class GeminiTextResponse {
 }
 ```
 
+## OpenAI
+
+For more information about the REST API, please refer to the official documentation.[API Overview](https://platform.openai.com/docs/api-reference/authentication)
+
+- Multi-turn conversations
+- [Vision](https://platform.openai.com/docs/guides/vision)
+- Streamed responses
+
+### Usage
+
+The usage is similar to `Google Gemini`. For specific examples, please refer to the samples in the `Test` package.
+
+### Additional Notes
+
+Currently, it is compatible with some free `API` interfaces, meaning any interface that is compatible with `/v1/chat/completions` can be used. Simply replace `apiKey` and `baseUrl` as needed.
+
 ## Subsequent
 
 In the future, I plan to create a `Spring` version, or look at which model `SDKs` are currently difficult to use and will be added to this project. 

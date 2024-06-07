@@ -1,4 +1,4 @@
-package org.liurb.ai.sdk.gemini.bean;
+package org.liurb.ai.sdk.openai.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,10 +7,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @Data
 @AllArgsConstructor
-public class ChatHistory {
+public class ChatContent {
+
+    private String type;
 
     private String text;
-
-    private String role;
 
 }

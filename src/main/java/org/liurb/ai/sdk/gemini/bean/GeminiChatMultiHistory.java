@@ -1,0 +1,17 @@
+package org.liurb.ai.sdk.gemini.bean;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import org.liurb.ai.sdk.common.bean.ChatHistory;
+
+@SuperBuilder
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class GeminiChatMultiHistory extends ChatHistory {
+
+    private MultiPartInlineData inlineData;
+
+}
