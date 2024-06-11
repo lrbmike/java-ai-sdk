@@ -51,7 +51,7 @@ Chat
 
         GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+        GeminiGenerationConfig generationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
         GeminiClient client = new GeminiClient(account);
         GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", generationConfig);
@@ -68,7 +68,7 @@ Multi-turn Chat
 
         GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+        GeminiGenerationConfig generationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
         GeminiClient client = new GeminiClient(account);
         GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", generationConfig);
@@ -90,7 +90,7 @@ Multimodal (with context)
 
         GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+        GeminiGenerationConfig generationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
         GeminiClient client = new GeminiClient(GeminiModelEnum.GEMINI_PRO.getName(), account);
 

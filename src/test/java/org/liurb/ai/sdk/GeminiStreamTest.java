@@ -1,7 +1,7 @@
 package org.liurb.ai.sdk;
 
 import org.liurb.ai.sdk.gemini.bean.Content;
-import org.liurb.ai.sdk.gemini.bean.GenerationConfig;
+import org.liurb.ai.sdk.gemini.bean.GeminiGenerationConfig;
 import org.liurb.ai.sdk.gemini.GeminiClient;
 import org.liurb.ai.sdk.gemini.bean.MultiPartInlineData;
 import org.liurb.ai.sdk.gemini.conf.GeminiAccount;
@@ -19,7 +19,7 @@ public class GeminiStreamTest {
 
         GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+        GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
         GeminiClient client = new GeminiClient(account);
 
@@ -53,7 +53,7 @@ public class GeminiStreamTest {
 
         MultiPartInlineData inlineData = MultiPartInlineData.builder().mimeType("image/jpeg").data(base64).build();
 
-        client.stream("What is this picture", inlineData, generationConfig, new GeminiStreamResponseListener() {
+        client.stream("What is this picture", inlineData, geminiGenerationConfig, new GeminiStreamResponseListener() {
 
             @Override
             public void accept(Content content) {

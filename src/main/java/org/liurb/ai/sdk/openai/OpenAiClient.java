@@ -56,13 +56,22 @@ public class OpenAiClient {
         this.history = new ArrayList<>();
     }
 
-
     public OpenAiTextResponse chat(String message) throws IOException {
 
-        return this.chat(message, null);
+        return this.chat(message, null, null);
+    }
+
+    public OpenAiTextResponse chat(String message, OpenAiGenerationConfig generationConfig) throws IOException {
+
+        return this.chat(message, null, generationConfig);
     }
 
     public OpenAiTextResponse chat(String message, MaterialData materialData) throws IOException {
+
+        return this.chat(message, materialData, null);
+    }
+
+    public OpenAiTextResponse chat(String message, MaterialData materialData, OpenAiGenerationConfig generationConfig) throws IOException {
 
         if (this.openaiAccount == null || this.openaiAccount.getApiKey() == null || this.openaiAccount.getApiKey().isEmpty()) {
             throw new RuntimeException("gemini api key is empty");
@@ -72,8 +81,15 @@ public class OpenAiClient {
             this.BASE_URL = this.openaiAccount.getBaseUrl();
         }
 
-
         OpenAiTextRequest questParams = this.buildOpenAiTextRequest(message, materialData, history);
+
+        if (generationConfig != null) {
+            questParams.setTemperature(generationConfig.getTemperature());
+            questParams.setMaxTokens(generationConfig.getMaxTokens());
+            questParams.setTopP(generationConfig.getTopP());
+            questParams.setN(generationConfig.getN());
+            questParams.setStop(generationConfig.getStop());
+        }
 
         MediaType json = MediaType.parse("application/json; charset=utf-8");
         RequestBody requestBody = RequestBody.create(json, JSON.toJSONString(questParams));

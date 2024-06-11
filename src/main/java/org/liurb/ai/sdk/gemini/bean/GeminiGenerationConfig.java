@@ -7,7 +7,7 @@ import java.util.List;
 
 @Builder
 @Data
-public class GenerationConfig {
+public class GeminiGenerationConfig {
 
 
     private List<String> stopSequences;

@@ -3,6 +3,7 @@ package org.liurb.ai.sdk;
 import org.junit.Test;
 import org.liurb.ai.sdk.openai.OpenAiClient;
 import org.liurb.ai.sdk.openai.bean.MaterialData;
+import org.liurb.ai.sdk.openai.bean.OpenAiGenerationConfig;
 import org.liurb.ai.sdk.openai.conf.OpenAiAccount;
 import org.liurb.ai.sdk.openai.dto.OpenAiTextResponse;
 
@@ -18,8 +19,10 @@ public class OpenAiChatTest {
 
         OpenAiAccount account = OpenAiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
+        OpenAiGenerationConfig generationConfig = OpenAiGenerationConfig.builder().temperature(0.3).build();
+
         OpenAiClient client = new OpenAiClient(account);
-        OpenAiTextResponse textResponse1 = client.chat("Do you know something about Yao Ming");
+        OpenAiTextResponse textResponse1 = client.chat("Do you know something about Yao Ming", generationConfig);
         System.out.println(textResponse1);
 
         OpenAiTextResponse textResponse2 = client.chat("who is his wife");

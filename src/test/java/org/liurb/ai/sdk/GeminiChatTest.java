@@ -3,7 +3,7 @@ package org.liurb.ai.sdk;
 
 import org.junit.Test;
 import org.liurb.ai.sdk.gemini.GeminiClient;
-import org.liurb.ai.sdk.gemini.bean.GenerationConfig;
+import org.liurb.ai.sdk.gemini.bean.GeminiGenerationConfig;
 import org.liurb.ai.sdk.gemini.bean.MultiPartInlineData;
 import org.liurb.ai.sdk.gemini.dto.GeminiTextResponse;
 import org.liurb.ai.sdk.gemini.enums.GeminiModelEnum;
@@ -26,16 +26,16 @@ public class GeminiChatTest
 
         GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+        GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
         GeminiClient client = new GeminiClient(account);
-        GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", generationConfig);
+        GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", geminiGenerationConfig);
         System.out.println(chatResponse1);
 
         GeminiTextResponse chatResponse2 = client.chat("who is his wife");
         System.out.println(chatResponse2);
 
-        GeminiTextResponse chatResponse3 = client.chat("who is his daughter", generationConfig);
+        GeminiTextResponse chatResponse3 = client.chat("who is his daughter", geminiGenerationConfig);
         System.out.println(chatResponse3);
     }
 
@@ -44,7 +44,7 @@ public class GeminiChatTest
 
         GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+        GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
         GeminiClient client = new GeminiClient(GeminiModelEnum.GEMINI_PRO.getName(), account);
 
@@ -61,10 +61,10 @@ public class GeminiChatTest
 
         String message = "What is this picture";
 
-        GeminiTextResponse chatResponse1 = client.chat(message, inlineData, generationConfig);
+        GeminiTextResponse chatResponse1 = client.chat(message, inlineData, geminiGenerationConfig);
         System.out.println(chatResponse1);
 
-        GeminiTextResponse chatResponse2 = client.chat("How many flowers are there", generationConfig);
+        GeminiTextResponse chatResponse2 = client.chat("How many flowers are there", geminiGenerationConfig);
         System.out.println(chatResponse2);
     }
 

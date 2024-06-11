@@ -61,12 +61,12 @@ public class GeminiClient {
         return this.chat(message, null, null);
     }
 
-    public GeminiTextResponse chat(String message, GenerationConfig generationConfig) throws IOException {
+    public GeminiTextResponse chat(String message, GeminiGenerationConfig geminiGenerationConfig) throws IOException {
 
-        return this.chat(message, null, generationConfig);
+        return this.chat(message, null, geminiGenerationConfig);
     }
 
-    public GeminiTextResponse chat(String message, MultiPartInlineData inlineData, GenerationConfig generationConfig) throws IOException {
+    public GeminiTextResponse chat(String message, MultiPartInlineData inlineData, GeminiGenerationConfig geminiGenerationConfig) throws IOException {
 
         if (this.geminiAccount == null || this.geminiAccount.getApiKey() == null || this.geminiAccount.getApiKey().isEmpty()) {
             throw new RuntimeException("gemini api key is empty");
@@ -79,8 +79,8 @@ public class GeminiClient {
         //build gemini request body
         GeminiTextRequest questParams = this.buildGeminiTextRequest(message, inlineData, this.history);
 
-        if (generationConfig != null) {
-            questParams.setGenerationConfig(generationConfig);
+        if (geminiGenerationConfig != null) {
+            questParams.setGeminiGenerationConfig(geminiGenerationConfig);
         }
 
         MediaType json = MediaType.parse("application/json; charset=utf-8");
@@ -110,7 +110,7 @@ public class GeminiClient {
         return null;
     }
 
-    public void stream(String message, MultiPartInlineData inlineData, GenerationConfig generationConfig, GeminiStreamResponseListener responseListener) throws IOException {
+    public void stream(String message, MultiPartInlineData inlineData, GeminiGenerationConfig geminiGenerationConfig, GeminiStreamResponseListener responseListener) throws IOException {
 
         if (this.geminiAccount == null || this.geminiAccount.getApiKey() == null || this.geminiAccount.getApiKey().isEmpty()) {
             throw new RuntimeException("gemini api key is empty");
@@ -123,8 +123,8 @@ public class GeminiClient {
         //build gemini request body
         GeminiTextRequest questParams = this.buildGeminiTextRequest(message, inlineData, this.history);
 
-        if (generationConfig != null) {
-            questParams.setGenerationConfig(generationConfig);
+        if (geminiGenerationConfig != null) {
+            questParams.setGeminiGenerationConfig(geminiGenerationConfig);
         }
 
         MediaType json = MediaType.parse("application/json; charset=utf-8");

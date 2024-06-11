@@ -51,7 +51,7 @@ public GeminiClient(String modelName, GeminiAccount geminiAccount)
 
         GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+        GeminiGenerationConfig generationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
         GeminiClient client = new GeminiClient(account);
         GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", generationConfig);
@@ -68,10 +68,10 @@ public GeminiClient(String modelName, GeminiAccount geminiAccount)
 
         GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+        GeminiGenerationConfig generationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
         GeminiClient client = new GeminiClient(account);
-        GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", generationConfig);
+        GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", geminiGenerationConfig);
         System.out.println(chatResponse1);
 
         GeminiTextResponse chatResponse2 = client.chat("who is his wife");
@@ -90,7 +90,7 @@ public GeminiClient(String modelName, GeminiAccount geminiAccount)
 
         GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+        GeminiGenerationConfig generationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
         GeminiClient client = new GeminiClient(GeminiModelEnum.GEMINI_PRO.getName(), account);
 
@@ -110,7 +110,7 @@ public GeminiClient(String modelName, GeminiAccount geminiAccount)
         GeminiTextResponse chatResponse1 = client.chat(message, inlineData, generationConfig);
         System.out.println(chatResponse1);
 
-        GeminiTextResponse chatResponse2 = client.chat("How many flowers are there", generationConfig);
+        GeminiTextResponse chatResponse2 = client.chat("How many flowers are there", geminiGenerationConfig);
         System.out.println(chatResponse2);
     }
 ```
