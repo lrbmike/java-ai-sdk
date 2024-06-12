@@ -14,7 +14,7 @@ public class GeminiTextRequest {
 
     private List<ChatTextMessage> contents;
 
-    private GeminiGenerationConfig geminiGenerationConfig;
+    private GeminiGenerationConfig generationConfig;
 
     private List<SafetySetting> safetySettings;
 }

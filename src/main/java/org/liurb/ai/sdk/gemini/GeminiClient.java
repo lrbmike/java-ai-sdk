@@ -26,47 +26,57 @@ public class GeminiClient {
     private String BASE_URL = "https://generativelanguage.googleapis.com";
     private String MODEL_NAME = GeminiModelEnum.GEMINI_PRO_FLASH.getName();
     private OkHttpClient okHttpClient;
-    private List<ChatHistory> history;
 
     private GeminiClient(){}
 
     public GeminiClient(GeminiAccount geminiAccount) {
         this.geminiAccount = geminiAccount;
         this.okHttpClient = this.defaultClient();
-        this.history = new ArrayList<>();
     }
 
     public GeminiClient(String modelName, GeminiAccount geminiAccount) {
         this.geminiAccount = geminiAccount;
         this.okHttpClient = this.defaultClient();
         this.MODEL_NAME = modelName;
-        this.history = new ArrayList<>();
     }
 
     public GeminiClient(GeminiAccount geminiAccount, OkHttpClient okHttpClient) {
         this.geminiAccount = geminiAccount;
         this.okHttpClient = okHttpClient;
-        this.history = new ArrayList<>();
     }
 
     public GeminiClient(String modelName, GeminiAccount geminiAccount, OkHttpClient okHttpClient) {
         this.geminiAccount = geminiAccount;
         this.okHttpClient = okHttpClient;
         this.MODEL_NAME = modelName;
-        this.history = new ArrayList<>();
     }
 
     public GeminiTextResponse chat(String message) throws IOException {
 
-        return this.chat(message, null, null);
+        return this.chat(message, null, null, null);
     }
 
-    public GeminiTextResponse chat(String message, GeminiGenerationConfig geminiGenerationConfig) throws IOException {
+    public GeminiTextResponse chat(String message, GeminiGenerationConfig generationConfig) throws IOException {
 
-        return this.chat(message, null, geminiGenerationConfig);
+        return this.chat(message, null, generationConfig, null);
     }
 
-    public GeminiTextResponse chat(String message, MultiPartInlineData inlineData, GeminiGenerationConfig geminiGenerationConfig) throws IOException {
+    public GeminiTextResponse chat(String message, List<ChatHistory> history) throws IOException {
+
+        return this.chat(message, null, null, history);
+    }
+
+    public GeminiTextResponse chat(String message, GeminiGenerationConfig generationConfig, List<ChatHistory> history) throws IOException {
+
+        return this.chat(message, null, generationConfig, history);
+    }
+
+    public GeminiTextResponse chat(String message, MultiPartInlineData inlineData) throws IOException {
+
+        return this.chat(message, inlineData, null, null);
+    }
+
+    public GeminiTextResponse chat(String message, MultiPartInlineData inlineData, GeminiGenerationConfig generationConfig, List<ChatHistory> history) throws IOException {
 
         if (this.geminiAccount == null || this.geminiAccount.getApiKey() == null || this.geminiAccount.getApiKey().isEmpty()) {
             throw new RuntimeException("gemini api key is empty");
@@ -77,10 +87,10 @@ public class GeminiClient {
         }
 
         //build gemini request body
-        GeminiTextRequest questParams = this.buildGeminiTextRequest(message, inlineData, this.history);
+        GeminiTextRequest questParams = this.buildGeminiTextRequest(message, inlineData, history);
 
-        if (geminiGenerationConfig != null) {
-            questParams.setGeminiGenerationConfig(geminiGenerationConfig);
+        if (generationConfig != null) {
+            questParams.setGenerationConfig(generationConfig);
         }
 
         MediaType json = MediaType.parse("application/json; charset=utf-8");
@@ -102,7 +112,7 @@ public class GeminiClient {
 
             GeminiTextResponse textResponse = JSON.parseObject(responseBody, GeminiTextResponse.class);
             // handle and set history
-            textResponse.setHistory(this.buildChatHistory(message, inlineData, textResponse.getCandidates(), this.history));
+            textResponse.setHistory(this.buildChatHistory(message, inlineData, textResponse.getCandidates(), history));
 
             return textResponse;
         }
@@ -110,7 +120,32 @@ public class GeminiClient {
         return null;
     }
 
-    public void stream(String message, MultiPartInlineData inlineData, GeminiGenerationConfig geminiGenerationConfig, GeminiStreamResponseListener responseListener) throws IOException {
+    public void stream(String message, GeminiStreamResponseListener responseListener) throws IOException {
+
+        this.stream(message, null, null, null, responseListener);
+    }
+
+    public void stream(String message, GeminiGenerationConfig generationConfig, GeminiStreamResponseListener responseListener) throws IOException {
+
+        this.stream(message, null, generationConfig, null, responseListener);
+    }
+
+    public void stream(String message, List<ChatHistory> history, GeminiStreamResponseListener responseListener) throws IOException {
+
+        this.stream(message, null, null, history, responseListener);
+    }
+
+    public void stream(String message, GeminiGenerationConfig generationConfig, List<ChatHistory> history, GeminiStreamResponseListener responseListener) throws IOException {
+
+        this.stream(message, null, generationConfig, history, responseListener);
+    }
+
+    public void stream(String message, MultiPartInlineData inlineData, GeminiStreamResponseListener responseListener) throws IOException {
+
+        this.stream(message, inlineData, null, null, responseListener);
+    }
+
+    public void stream(String message, MultiPartInlineData inlineData, GeminiGenerationConfig generationConfig, List<ChatHistory> history, GeminiStreamResponseListener responseListener) throws IOException {
 
         if (this.geminiAccount == null || this.geminiAccount.getApiKey() == null || this.geminiAccount.getApiKey().isEmpty()) {
             throw new RuntimeException("gemini api key is empty");
@@ -121,10 +156,10 @@ public class GeminiClient {
         }
 
         //build gemini request body
-        GeminiTextRequest questParams = this.buildGeminiTextRequest(message, inlineData, this.history);
+        GeminiTextRequest questParams = this.buildGeminiTextRequest(message, inlineData, history);
 
-        if (geminiGenerationConfig != null) {
-            questParams.setGeminiGenerationConfig(geminiGenerationConfig);
+        if (generationConfig != null) {
+            questParams.setGenerationConfig(generationConfig);
         }
 
         MediaType json = MediaType.parse("application/json; charset=utf-8");

@@ -47,13 +47,13 @@ public class GeminiStreamTest {
 
         // Multi Modal
 
-        String imageUrl = "https://storage.googleapis.com/generativeai-downloads/images/scones.jpg";
+        String imageUrl = "https://pic.qqtn.com/uploadfiles/2009-6/2009614181816.jpg";
 
         String base64 = Base64Util.imageUrlToBase64(imageUrl);
 
         MultiPartInlineData inlineData = MultiPartInlineData.builder().mimeType("image/jpeg").data(base64).build();
 
-        client.stream("What is this picture", inlineData, geminiGenerationConfig, new GeminiStreamResponseListener() {
+        client.stream("What is this picture", inlineData, geminiGenerationConfig, null, new GeminiStreamResponseListener() {
 
             @Override
             public void accept(Content content) {

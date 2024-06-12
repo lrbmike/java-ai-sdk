@@ -36,11 +36,11 @@ public class OpenAiStreamTest {
 //        });
 
         String type = "image_url";
-        String url = "https://storage.googleapis.com/generativeai-downloads/images/scones.jpg";
+        String url = "https://pic.qqtn.com/uploadfiles/2009-6/2009614181816.jpg";
 
         MaterialData materialData = MaterialData.builder().type(type).url(url).build();
 
-        client.stream("What is this picture", materialData, new OpenAiStreamResponseListener() {
+        client.stream("What is this picture", materialData, null, null, new OpenAiStreamResponseListener() {
             @Override
             public void accept(StreamChoice choice) {
                 System.out.println("accept3:" + choice);

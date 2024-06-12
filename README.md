@@ -6,6 +6,8 @@ The development of this JAVA-based AI SDK is primarily aimed at addressing the l
 
 The project mainly involves encapsulating the REST API provided by model manufacturers, making it convenient for JAVA developers to use. It also introduces only a minimal number of dependency packages to avoid conflicts.
 
+The SDK currently supports historical context. Simply pass in the corresponding historical data when calling the interface. For specific examples, please refer to the multi-turn dialogue in the example below.
+
 ## Importing
 
 ### Maven
@@ -46,73 +48,104 @@ public GeminiClient(String modelName, GeminiAccount geminiAccount)
 Chat
 
 ```java
-    @Test
-    public void chatTest() throws IOException {
+@Test
+public void chatTest() throws IOException {
 
-        GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
+    GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GeminiGenerationConfig generationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
+    GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
-        GeminiClient client = new GeminiClient(account);
-        GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", generationConfig);
-        System.out.println(chatResponse1);
-    }
+    GeminiClient client = new GeminiClient(account);
+    GeminiTextResponse chatResponse = client.chat("who are you", geminiGenerationConfig);
+    System.out.println(chatResponse);
+}
 
 ```
 
 Multi-turn Chat
 
 ```java
-    @Test
-    public void chatTest() throws IOException {
+@Test
+public void multiTurnChatTest() throws IOException {
 
-        GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
+    GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GeminiGenerationConfig generationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
+    GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
-        GeminiClient client = new GeminiClient(account);
-        GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", generationConfig);
-        System.out.println(chatResponse1);
+    GeminiClient client = new GeminiClient(account);
+    GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", geminiGenerationConfig);
+    System.out.println(chatResponse1);
 
-        GeminiTextResponse chatResponse2 = client.chat("who is his wife");
-        System.out.println(chatResponse2);
+    // round one history data
+    List<ChatHistory> history1 = chatResponse1.getHistory();
 
-        GeminiTextResponse chatResponse3 = client.chat("who is his daughter", generationConfig);
-        System.out.println(chatResponse3);
-    }
+    GeminiTextResponse chatResponse2 = client.chat("who is his wife", geminiGenerationConfig, history1);
+    System.out.println(chatResponse2);
+
+    // round two history data
+    List<ChatHistory> history2 = chatResponse2.getHistory();
+
+    GeminiTextResponse chatResponse3 = client.chat("who is his daughter", geminiGenerationConfig, history2);
+    System.out.println(chatResponse3);
+}
 ```
 
 Multimodal (with context)
 
 ```java
 @Test
-    public void chatMultiModalTest() throws IOException {
+public void chatMultiModalTest() throws IOException {
 
-        GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
+    GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GeminiGenerationConfig generationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
+    GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
 
-        GeminiClient client = new GeminiClient(GeminiModelEnum.GEMINI_PRO.getName(), account);
+    GeminiClient client = new GeminiClient(GeminiModelEnum.GEMINI_PRO.getName(), account);
 
-        // local image
-//        Path img = Paths.get("/path/abc.jpg");
-//        String base64Image = Base64.getEncoder().encodeToString(Files.readAllBytes(img));
+    // image url
+    String imageUrl = "https://pic.qqtn.com/uploadfiles/2009-6/2009614181816.jpg";
+	// convert the image to base64
+    String base64 = Base64Util.imageUrlToBase64(imageUrl);
 
-        // image url
-        String imageUrl = "https://storage.googleapis.com/generativeai-downloads/images/scones.jpg";
+    MultiPartInlineData inlineData = MultiPartInlineData.builder().mimeType("image/jpeg").data(base64).build();
 
-        String base64 = Base64Util.imageUrlToBase64(imageUrl);
+    String message = "What is this picture";
 
-        MultiPartInlineData inlineData = MultiPartInlineData.builder().mimeType("image/jpeg").data(base64).build();
+    GeminiTextResponse chatResponse1 = client.chat(message, inlineData, geminiGenerationConfig, null);
+    System.out.println(chatResponse1);
 
-        String message = "What is this picture";
+    // history data
+    List<ChatHistory> history = chatResponse1.getHistory();
 
-        GeminiTextResponse chatResponse1 = client.chat(message, inlineData, generationConfig);
-        System.out.println(chatResponse1);
+    GeminiTextResponse chatResponse2 = client.chat("How many dog are there", geminiGenerationConfig, history);
+    System.out.println(chatResponse2);
+}
+```
 
-        GeminiTextResponse chatResponse2 = client.chat("How many flowers are there", generationConfig);
-        System.out.println(chatResponse2);
+Stream Chat
+
+```java
+GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
+
+GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
+
+GeminiClient client = new GeminiClient(account);
+
+// image url
+String imageUrl = "https://pic.qqtn.com/uploadfiles/2009-6/2009614181816.jpg";
+// convert the image to base64
+String base64 = Base64Util.imageUrlToBase64(imageUrl);
+
+MultiPartInlineData inlineData = MultiPartInlineData.builder().mimeType("image/jpeg").data(base64).build();
+
+client.stream("What is this picture", inlineData, geminiGenerationConfig, null, new GeminiStreamResponseListener() {
+
+    @Override
+    public void accept(Content content) {
+        System.out.println("accept3:" + content);
     }
+
+});
 ```
 
 In the current full conversation methods, the function of automatically implementing historical records has been realized. The caller can obtain the `history` through the returned `GeminiTextResponse` object.

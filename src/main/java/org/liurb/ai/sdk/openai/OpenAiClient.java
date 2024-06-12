@@ -26,52 +26,57 @@ public class OpenAiClient {
     private String BASE_URL = "https://api.openai.com";
     private String MODEL_NAME = OpenAiModelEnum.GPT_35_TURBO.getName();
     private OkHttpClient okHttpClient;
-    private List<ChatHistory> history;
 
     private OpenAiClient() {}
 
     public OpenAiClient(OpenAiAccount openaiAccount) {
         this.openaiAccount = openaiAccount;
         this.okHttpClient = this.defaultClient();
-        this.history = new ArrayList<>();
     }
 
     public OpenAiClient(String modelName, OpenAiAccount openaiAccount) {
         this.openaiAccount = openaiAccount;
         this.okHttpClient = this.defaultClient();
         this.MODEL_NAME = modelName;
-        this.history = new ArrayList<>();
     }
 
     public OpenAiClient(OpenAiAccount openaiAccount, OkHttpClient okHttpClient) {
         this.openaiAccount = openaiAccount;
         this.okHttpClient = okHttpClient;
-        this.history = new ArrayList<>();
     }
 
     public OpenAiClient(String modelName, OpenAiAccount openaiAccount, OkHttpClient okHttpClient) {
         this.openaiAccount = openaiAccount;
         this.okHttpClient = okHttpClient;
         this.MODEL_NAME = modelName;
-        this.history = new ArrayList<>();
     }
 
     public OpenAiTextResponse chat(String message) throws IOException {
 
-        return this.chat(message, null, null);
+        return this.chat(message, null, null, null);
     }
 
     public OpenAiTextResponse chat(String message, OpenAiGenerationConfig generationConfig) throws IOException {
 
-        return this.chat(message, null, generationConfig);
+        return this.chat(message, null, generationConfig, null);
+    }
+
+    public OpenAiTextResponse chat(String message, List<ChatHistory> history) throws IOException {
+
+        return this.chat(message, null, null, history);
+    }
+
+    public OpenAiTextResponse chat(String message, OpenAiGenerationConfig generationConfig, List<ChatHistory> history) throws IOException {
+
+        return this.chat(message, null, generationConfig, history);
     }
 
     public OpenAiTextResponse chat(String message, MaterialData materialData) throws IOException {
 
-        return this.chat(message, materialData, null);
+        return this.chat(message, materialData, null, null);
     }
 
-    public OpenAiTextResponse chat(String message, MaterialData materialData, OpenAiGenerationConfig generationConfig) throws IOException {
+    public OpenAiTextResponse chat(String message, MaterialData materialData, OpenAiGenerationConfig generationConfig, List<ChatHistory> history) throws IOException {
 
         if (this.openaiAccount == null || this.openaiAccount.getApiKey() == null || this.openaiAccount.getApiKey().isEmpty()) {
             throw new RuntimeException("gemini api key is empty");
@@ -117,7 +122,27 @@ public class OpenAiClient {
         return null;
     }
 
-    public void stream(String message, MaterialData materialData, OpenAiStreamResponseListener responseListener) throws IOException {
+    public void stream(String message, OpenAiStreamResponseListener responseListener) throws IOException {
+
+        this.stream(message, null, null, null, responseListener);
+    }
+
+    public void stream(String message, OpenAiGenerationConfig generationConfig, OpenAiStreamResponseListener responseListener) throws IOException {
+
+        this.stream(message, null, generationConfig, null, responseListener);
+    }
+
+    public void stream(String message, List<ChatHistory> history, OpenAiStreamResponseListener responseListener) throws IOException {
+
+        this.stream(message, null, null, history, responseListener);
+    }
+
+    public void stream(String message, OpenAiGenerationConfig generationConfig, List<ChatHistory> history, OpenAiStreamResponseListener responseListener) throws IOException {
+
+        this.stream(message, null, generationConfig, history, responseListener);
+    }
+
+    public void stream(String message, MaterialData materialData, OpenAiGenerationConfig generationConfig, List<ChatHistory> history, OpenAiStreamResponseListener responseListener) throws IOException {
 
         if (this.openaiAccount == null || this.openaiAccount.getApiKey() == null || this.openaiAccount.getApiKey().isEmpty()) {
             throw new RuntimeException("gemini api key is empty");
@@ -127,9 +152,16 @@ public class OpenAiClient {
             this.BASE_URL = this.openaiAccount.getBaseUrl();
         }
 
-
         OpenAiTextRequest questParams = this.buildOpenAiTextRequest(message, materialData, history);
         questParams.setStream(true);
+
+        if (generationConfig != null) {
+            questParams.setTemperature(generationConfig.getTemperature());
+            questParams.setMaxTokens(generationConfig.getMaxTokens());
+            questParams.setTopP(generationConfig.getTopP());
+            questParams.setN(generationConfig.getN());
+            questParams.setStop(generationConfig.getStop());
+        }
 
         MediaType json = MediaType.parse("application/json; charset=utf-8");
         RequestBody requestBody = RequestBody.create(json, JSON.toJSONString(questParams));
