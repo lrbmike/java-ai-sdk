@@ -12,8 +12,8 @@ import java.util.List;
 
 public class OpenAiChatTest {
 
-    String apiKey = "sk-7imlXI5u1JdN1oCnpFJMXQR0CDx7YhmItHEjcu7OURGlhoCY";
-    String baseUrl = "https://api.chatanywhere.tech";
+    String apiKey = "";
+    String baseUrl = "";
 
     @Test
     public void chatTest() throws IOException {
