@@ -15,4 +15,6 @@ public class GenerationConfig {
 
     private String stop;
 
+    private Integer maxTokens;
+
 }

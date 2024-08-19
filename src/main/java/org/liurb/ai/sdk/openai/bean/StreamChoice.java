@@ -7,7 +7,7 @@ import lombok.Data;
 public class StreamChoice {
 
     @JSONField(name = "delta")
-    private AiMessage delta;
+    private OpenAiMessage delta;
 
     @JSONField(name = "logprobs")
     private Integer logprobs;

@@ -227,10 +227,10 @@ public class GeminiClient {
 
                 if (chat instanceof GeminiChatMultiHistory) {
                     GeminiChatMultiHistory geminiChatMultiHistory = (GeminiChatMultiHistory)chat;
-                    ChatTextMessage chatTextMessage = this.buildChatTextMessage(geminiChatMultiHistory.getText(), geminiChatMultiHistory.getRole(), geminiChatMultiHistory.getInlineData());
+                    ChatTextMessage chatTextMessage = this.buildChatTextMessage(geminiChatMultiHistory.getContent(), geminiChatMultiHistory.getRole(), geminiChatMultiHistory.getInlineData());
                     contents.add(chatTextMessage);
                 }else {
-                    ChatTextMessage textMessage = this.buildChatTextMessage(chat.getText(), chat.getRole());
+                    ChatTextMessage textMessage = this.buildChatTextMessage(chat.getContent(), chat.getRole());
                     contents.add(textMessage);
                 }
 
@@ -274,16 +274,16 @@ public class GeminiClient {
 
         // add user chat message
         if (inlineData != null) {
-            GeminiChatMultiHistory geminiChatMultiHistory = GeminiChatMultiHistory.builder().text(message).role("user").inlineData(inlineData).build();
+            GeminiChatMultiHistory geminiChatMultiHistory = GeminiChatMultiHistory.builder().content(message).role("user").inlineData(inlineData).build();
             history.add(geminiChatMultiHistory);
         }else{
-            ChatHistory chatHistory = ChatHistory.builder().text(message).role("user").build();
+            ChatHistory chatHistory = ChatHistory.builder().content(message).role("user").build();
             history.add(chatHistory);
         }
 
         // add ai response message
         Content content = candidates.get(0).getContent();
-        ChatHistory aiChat = ChatHistory.builder().text(content.getParts().get(0).getText()).role(content.getRole()).build();
+        ChatHistory aiChat = ChatHistory.builder().content(content.getParts().get(0).getText()).role(content.getRole()).build();
         history.add(aiChat);
 
         // max 10 chat history
@@ -302,15 +302,15 @@ public class GeminiClient {
 
         // add user chat message
         if (inlineData != null) {
-            GeminiChatMultiHistory geminiChatMultiHistory = GeminiChatMultiHistory.builder().text(message).role("user").inlineData(inlineData).build();
+            GeminiChatMultiHistory geminiChatMultiHistory = GeminiChatMultiHistory.builder().content(message).role("user").inlineData(inlineData).build();
             history.add(geminiChatMultiHistory);
         }else{
-            ChatHistory chatHistory = ChatHistory.builder().text(message).role("user").build();
+            ChatHistory chatHistory = ChatHistory.builder().content(message).role("user").build();
             history.add(chatHistory);
         }
 
         if (aiText.length() != 0) {
-            ChatHistory aiChat = ChatHistory.builder().text(aiText.toString()).role("model").build();
+            ChatHistory aiChat = ChatHistory.builder().content(aiText.toString()).role("model").build();
             history.add(aiChat);
         }
 

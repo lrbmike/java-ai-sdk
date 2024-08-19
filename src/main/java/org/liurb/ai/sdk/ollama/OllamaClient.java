@@ -38,11 +38,12 @@ public class OllamaClient extends AiBaseClient {
                     if (ollamaChatHistory.getImages() != null) {
                         historyMediaData = MediaData.builder().url(ollamaChatHistory.getImages().get(0)).build();
                     }
-                    OllamaChatMessage ollamaChatMessage = this.buildChatMessage(ollamaChatHistory.getContent(), ollamaChatHistory.getRole(), historyMediaData);
+                    OllamaChatMessage ollamaChatMessage = this.buildChatMessage(ollamaChatHistory.getContent(),
+                            ollamaChatHistory.getRole(), historyMediaData);
                     messages.add(ollamaChatMessage);
 
                 } else {
-                    OllamaChatMessage ollamaChatMessage = this.buildChatMessage(chatHistory.getContent(), chatHistory.getRole(), mediaData);
+                    OllamaChatMessage ollamaChatMessage = this.buildChatMessage(chatHistory.getContent(), chatHistory.getRole());
                     messages.add(ollamaChatMessage);
                 }
 
@@ -55,6 +56,11 @@ public class OllamaClient extends AiBaseClient {
         messages.add(chatMessage);
 
         return OllamaTextRequest.builder().model(this.getModelName()).messages(messages).build();
+    }
+
+    private OllamaChatMessage buildChatMessage(String message, String role) {
+
+        return this.buildChatMessage(message, role, null);
     }
 
     private OllamaChatMessage buildChatMessage(String message, String role, MediaData mediaData) {
@@ -79,7 +85,7 @@ public class OllamaClient extends AiBaseClient {
             OllamaChatHistory chatHistory = OllamaChatHistory.builder().role("user").content(message).images(Arrays.asList(mediaData.getUrl())).build();
             history.add(chatHistory);
         } else {
-            OllamaChatHistory chatHistory = OllamaChatHistory.builder().role("user").content(message).build();
+            ChatHistory chatHistory = OllamaChatHistory.builder().role("user").content(message).build();
             history.add(chatHistory);
         }
 
@@ -88,7 +94,7 @@ public class OllamaClient extends AiBaseClient {
             OllamaChatHistory aiChat = OllamaChatHistory.builder().content(aiChatMessage.getContent()).role(aiChatMessage.getRole()).images(aiChatMessage.getImages()).build();
             history.add(aiChat);
         } else {
-            OllamaChatHistory aiChat = OllamaChatHistory.builder().content(aiChatMessage.getContent()).role(aiChatMessage.getRole()).build();
+            ChatHistory aiChat = OllamaChatHistory.builder().content(aiChatMessage.getContent()).role(aiChatMessage.getRole()).build();
             history.add(aiChat);
         }
 
@@ -146,7 +152,6 @@ public class OllamaClient extends AiBaseClient {
     protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, List<ChatHistory> history) {
 
         OllamaTextRequest questParams = this.buildOllamaTextRequest(message, mediaData, history);
-        questParams.setStream(false);
 
         if (generationConfig != null) {
             OllamaRequestOptions options = OllamaRequestOptions.builder().temperature(generationConfig.getTemperature())
@@ -161,20 +166,21 @@ public class OllamaClient extends AiBaseClient {
     @Override
     protected AiChatResponse buildChatResponse(String responseBody, String message, MediaData mediaData, List<ChatHistory> history) {
         AiChatResponse response = new AiChatResponse();
-        //映射接口返回的内容
+
+        ////json string to object
         OllamaTextResponse ollamaTextResponse = JSON.parseObject(responseBody, OllamaTextResponse.class);
 
-        //设置 ai 回复消息
+        //set ai response message
         OllamaAiChatMessage aiMessage = ollamaTextResponse.getMessage();
         ChatMessage resMessage = ChatMessage.builder().content(aiMessage.getContent()).role(aiMessage.getRole()).build();
         response.setMessage(resMessage);
-        //设置返回的媒体内容
+        //set media content
         if (aiMessage.getImages() != null) {
             MediaData resMedia = MediaData.builder().url(aiMessage.getImages().get(0)).build();
             response.setMedia(resMedia);
         }
 
-        //处理聊天记录
+        //handle chat history
         List<ChatHistory> newHistory = this.buildChatHistory(message, mediaData, aiMessage, history);
         response.setHistory(newHistory);
 

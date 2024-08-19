@@ -13,6 +13,4 @@ public class ChatHistory {
 
     private String content;
 
-    private String text;
-
 }

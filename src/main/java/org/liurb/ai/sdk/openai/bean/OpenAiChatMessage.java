@@ -4,14 +4,16 @@ import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Builder
 @Data
-public class AiMessage {
+public class OpenAiChatMessage {
 
     @JSONField(name = "role")
     private String role;
 
     @JSONField(name = "content")
-    private String content;
+    private List<ChatContent> content;
 
 }

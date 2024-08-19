@@ -4,7 +4,10 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
-import org.liurb.ai.sdk.common.bean.*;
+import org.liurb.ai.sdk.common.bean.ChatHistory;
+import org.liurb.ai.sdk.common.bean.GenerationConfig;
+import org.liurb.ai.sdk.common.bean.MediaData;
+import org.liurb.ai.sdk.common.bean.ModelAccount;
 import org.liurb.ai.sdk.common.dto.AiChatResponse;
 
 import java.io.IOException;
@@ -40,6 +43,11 @@ public abstract class AiBaseClient {
     public AiChatResponse chat(String message, GenerationConfig generationConfig) throws IOException {
 
         return this.chat(message, null, generationConfig, null);
+    }
+
+    public AiChatResponse chat(String message, GenerationConfig generationConfig, List<ChatHistory> history) throws IOException {
+
+        return this.chat(message, null, generationConfig, history);
     }
 
     public AiChatResponse chat(String message, MediaData mediaData, GenerationConfig generationConfig, List<ChatHistory> history) throws IOException {

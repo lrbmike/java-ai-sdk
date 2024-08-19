@@ -19,7 +19,7 @@ public class OllamaTextRequest {
     private List<OllamaChatMessage> messages;
 
     @JSONField(name = "stream")
-    private Boolean stream;
+    private boolean stream;
 
     @JSONField(name = "format")
     private String format;

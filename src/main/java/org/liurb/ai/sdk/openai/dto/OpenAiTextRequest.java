@@ -3,7 +3,7 @@ package org.liurb.ai.sdk.openai.dto;
 import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Builder;
 import lombok.Data;
-import org.liurb.ai.sdk.openai.bean.ChatMessage;
+import org.liurb.ai.sdk.openai.bean.OpenAiChatMessage;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class OpenAiTextRequest {
     private String model;
 
     @JSONField(name = "messages")
-    private List<ChatMessage> messages;
+    private List<OpenAiChatMessage> messages;
 
     @JSONField(name = "max_tokens")
     private Integer maxTokens;

@@ -2,7 +2,6 @@ package org.liurb.ai.sdk.openai.dto;
 
 import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Data;
-import org.liurb.ai.sdk.common.bean.ChatHistory;
 import org.liurb.ai.sdk.openai.bean.Choice;
 import org.liurb.ai.sdk.openai.bean.Usage;
 
@@ -29,7 +28,5 @@ public class OpenAiTextResponse {
 
     @JSONField(name = "choices")
     private List<Choice> choices;
-
-    private List<ChatHistory> history;
 
 }

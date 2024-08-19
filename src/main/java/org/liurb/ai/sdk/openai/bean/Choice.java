@@ -7,7 +7,7 @@ import lombok.Data;
 public class Choice {
 
     @JSONField(name = "message")
-    private AiMessage message;
+    private OpenAiMessage message;
 
     @JSONField(name = "logprobs")
     private Integer logprobs;
