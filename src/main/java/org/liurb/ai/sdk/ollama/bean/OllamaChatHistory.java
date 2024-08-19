@@ -1,15 +1,16 @@
 package org.liurb.ai.sdk.ollama.bean;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.liurb.ai.sdk.common.bean.ChatHistory;
 
-@SuperBuilder(toBuilder = true)
-@Data
-@AllArgsConstructor
-public class OllamaChatHistory {
+import java.util.List;
 
-    private String role;
+@SuperBuilder
+@Getter
+@Setter
+public class OllamaChatHistory extends ChatHistory {
 
-    private String content;
+    private List<String> images;
 }

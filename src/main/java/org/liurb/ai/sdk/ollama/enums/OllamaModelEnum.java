@@ -10,6 +10,7 @@ public enum OllamaModelEnum {
     LLAMA3_1("llama3.1"),
     GEMMA2("gemma2"),
     QWEN2("qwen2"),
+    QWEN2_MIN("qwen2:1.5b"),
     ;
 
     private final String name;

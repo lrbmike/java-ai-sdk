@@ -7,12 +7,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Getter
 @Setter
-public class ChatHistory {
+public class ChatMessage {
 
-    private String role;
+    String role;
 
-    private String content;
-
-    private String text;
+    String content;
 
 }

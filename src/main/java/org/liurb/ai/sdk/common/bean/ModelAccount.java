@@ -1,11 +1,11 @@
-package org.liurb.ai.sdk.ollama.conf;
+package org.liurb.ai.sdk.common.bean;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Builder
 @Data
-public class OllamaAccount {
+public class ModelAccount {
 
     private String apiKey;
 

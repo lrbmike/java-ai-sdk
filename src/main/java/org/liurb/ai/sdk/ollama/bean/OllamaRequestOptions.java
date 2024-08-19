@@ -3,7 +3,6 @@ package org.liurb.ai.sdk.ollama.bean;
 import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
