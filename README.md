@@ -33,7 +33,7 @@ For more information about the REST API, please refer to the official documentat
 
 ## Usage
 
-Configure the  `API KEY`  through the `GeminiAccount` settings. If you need to use a reverse proxy, you can configure the  `BASE_URL`.
+Configure the  `API KEY`  through the `ModelAccount` settings. If you need to use a reverse proxy, you can configure the  `BASE_URL`.
 
 ```java
 ModelAccount account = ModelAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
