@@ -12,11 +12,8 @@ import java.util.List;
 @Data
 public class OpenAiTextRequest {
 
-
-    @JSONField(name = "model")
     private String model;
 
-    @JSONField(name = "messages")
     private List<OpenAiChatMessage> messages;
 
     @JSONField(name = "max_tokens")

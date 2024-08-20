@@ -2,7 +2,7 @@ package org.liurb.ai.sdk.gemini.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import org.liurb.ai.sdk.gemini.bean.ChatTextMessage;
+import org.liurb.ai.sdk.gemini.bean.GeminiChatMessage;
 import org.liurb.ai.sdk.gemini.bean.GeminiGenerationConfig;
 import org.liurb.ai.sdk.gemini.bean.SafetySetting;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class GeminiTextRequest {
 
-    private List<ChatTextMessage> contents;
+    private List<GeminiChatMessage> contents;
 
     private GeminiGenerationConfig generationConfig;
 

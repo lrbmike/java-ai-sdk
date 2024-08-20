@@ -7,7 +7,7 @@ import java.util.List;
 
 @Builder
 @Data
-public class ChatTextMessage {
+public class GeminiChatMessage {
 
     private String role;
 
