@@ -33,16 +33,16 @@
 
 ### 使用
 
-通过 `GeminiAccount` 配置 `API KEY`，如果需要使用代理地址，可以配置 `BASE_URL`
+通过 `ModelAccount` 配置 `API KEY`，如果需要使用代理地址，可以配置 `BASE_URL`
 
 ```java
-GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
+ModelAccount account = ModelAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 ```
 
 默认使用 `models/gemini-1.5-flash` 模型，当然也可以通过构造函数，自定义配置
 
 ```java
-public GeminiClient(String modelName, GeminiAccount geminiAccount) 
+public GeminiClient(String modelName, ModelAccount account) 
 ```
 
 普通对话
@@ -51,12 +51,12 @@ public GeminiClient(String modelName, GeminiAccount geminiAccount)
 @Test
 public void chatTest() throws IOException {
 
-    GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
+    ModelAccount account = ModelAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-    GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
+    GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
 
     GeminiClient client = new GeminiClient(account);
-    GeminiTextResponse chatResponse = client.chat("who are you", geminiGenerationConfig);
+    AiChatResponse chatResponse = client.chat("who are you", generationConfig);
     System.out.println(chatResponse);
 }
 ```
@@ -67,24 +67,24 @@ public void chatTest() throws IOException {
 @Test
 public void multiTurnChatTest() throws IOException {
 
-    GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
+    ModelAccount account = ModelAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-    GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
+    GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
 
     GeminiClient client = new GeminiClient(account);
-    GeminiTextResponse chatResponse1 = client.chat("Do you know something about Yao Ming", geminiGenerationConfig);
+    AiChatResponse chatResponse1 = client.chat("Do you know something about Yao Ming", generationConfig);
     System.out.println(chatResponse1);
 
     // round one history data
     List<ChatHistory> history1 = chatResponse1.getHistory();
 
-    GeminiTextResponse chatResponse2 = client.chat("who is his wife", geminiGenerationConfig, history1);
+    AiChatResponse chatResponse2 = client.chat("who is his wife", generationConfig, history1);
     System.out.println(chatResponse2);
 
     // round two history data
     List<ChatHistory> history2 = chatResponse2.getHistory();
 
-    GeminiTextResponse chatResponse3 = client.chat("who is his daughter", geminiGenerationConfig, history2);
+    AiChatResponse chatResponse3 = client.chat("who is his daughter", generationConfig, history2);
     System.out.println(chatResponse3);
 }
 ```
@@ -95,9 +95,9 @@ public void multiTurnChatTest() throws IOException {
 @Test
 public void chatMultiModalTest() throws IOException {
 
-    GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
+    ModelAccount account = ModelAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-    GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
+    GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
 
     GeminiClient client = new GeminiClient(GeminiModelEnum.GEMINI_PRO.getName(), account);
 
@@ -106,17 +106,17 @@ public void chatMultiModalTest() throws IOException {
 	// Convert the image to base64
     String base64 = Base64Util.imageUrlToBase64(imageUrl);
 
-    MultiPartInlineData inlineData = MultiPartInlineData.builder().mimeType("image/jpeg").data(base64).build();
+    MediaData mediaData = MediaData.builder().type("image/jpeg").url(base64).build();
 
     String message = "What is this picture";
 
-    GeminiTextResponse chatResponse1 = client.chat(message, inlineData, geminiGenerationConfig, null);
+    AiChatResponse chatResponse1 = client.chat(message, mediaData, generationConfig, null);
     System.out.println(chatResponse1);
 
     // history data
     List<ChatHistory> history = chatResponse1.getHistory();
 
-    GeminiTextResponse chatResponse2 = client.chat("How many dog are there", geminiGenerationConfig, history);
+    AiChatResponse chatResponse2 = client.chat("How many dog are there", generationConfig, history);
     System.out.println(chatResponse2);
 }
 ```
@@ -124,41 +124,45 @@ public void chatMultiModalTest() throws IOException {
 流式对话
 
 ```java
-GeminiAccount account = GeminiAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
+ModelAccount account = ModelAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder().temperature(0.3).build();
+GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
+
+List<ChatHistory> history = new ArrayList<>();
 
 GeminiClient client = new GeminiClient(account);
 
-// image url
-String imageUrl = "https://pic.qqtn.com/uploadfiles/2009-6/2009614181816.jpg";
-// Convert the image to base64
-String base64 = Base64Util.imageUrlToBase64(imageUrl);
-
-MultiPartInlineData inlineData = MultiPartInlineData.builder().mimeType("image/jpeg").data(base64).build();
-
-client.stream("What is this picture", inlineData, geminiGenerationConfig, null, new GeminiStreamResponseListener() {
+client.stream("Do you know something about Yao Ming", generationConfig, history, new AiStreamResponseListener() {
 
     @Override
-    public void accept(Content content) {
-        System.out.println("accept3:" + content);
+    public void accept(AiStreamMessage streamMessage) {
+        System.out.println("accept1:" + streamMessage.getContent());
     }
 
 });
 ```
 
-目前的全部对话中，已自动实现了历史记录的功能，调用者可通过返回的 `GeminiTextResponse` 对象中获取 `history`
+目前普通对话中，已自动实现了历史记录的功能，调用者可通过返回的 `AiChatResponse` 对象中获取 `history`
 
 ```java
 @Data
-public class GeminiTextResponse {
+public class AiChatResponse {
 
-    private List<Candidate> candidates;
+    private ChatMessage message;
 
-    private UsageMetaData usageMetadata;
+    private MediaData media;
 
     private List<ChatHistory> history;
 }
+```
+
+对于流式对话，则需要从外部传入历史记录列表
+
+```java
+List<ChatHistory> history = new ArrayList<>();
+client.stream("ask something", generationConfig, history, new AiStreamResponseListener() {
+    //...
+});
 ```
 
 ## OpenAI

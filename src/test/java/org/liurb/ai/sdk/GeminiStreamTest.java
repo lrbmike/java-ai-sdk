@@ -26,7 +26,7 @@ public class GeminiStreamTest {
 
         // Stream and Multi-turn conversations
 
-        client.stream("Do you know something about Yao Ming", null, generationConfig, history, new AiStreamResponseListener() {
+        client.stream("Do you know something about Yao Ming", generationConfig, history, new AiStreamResponseListener() {
 
             @Override
             public void accept(AiStreamMessage streamMessage) {
@@ -37,7 +37,7 @@ public class GeminiStreamTest {
 
         Thread.sleep(30 * 1000);
 
-        client.stream("who is his wife", null, generationConfig, history, new AiStreamResponseListener() {
+        client.stream("who is his wife", generationConfig, history, new AiStreamResponseListener() {
 
             @Override
             public void accept(AiStreamMessage streamMessage) {
