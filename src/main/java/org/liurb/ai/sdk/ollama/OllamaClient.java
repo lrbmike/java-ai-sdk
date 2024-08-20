@@ -9,6 +9,7 @@ import org.liurb.ai.sdk.ollama.bean.OllamaAiChatMessage;
 import org.liurb.ai.sdk.ollama.bean.OllamaChatHistory;
 import org.liurb.ai.sdk.ollama.bean.OllamaChatMessage;
 import org.liurb.ai.sdk.ollama.bean.OllamaRequestOptions;
+import org.liurb.ai.sdk.ollama.dto.OllamaStreamResponse;
 import org.liurb.ai.sdk.ollama.dto.OllamaTextRequest;
 import org.liurb.ai.sdk.ollama.dto.OllamaTextResponse;
 import org.liurb.ai.sdk.ollama.enums.OllamaModelEnum;
@@ -16,12 +17,17 @@ import org.liurb.ai.sdk.ollama.enums.OllamaModelEnum;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 public class OllamaClient extends AiBaseClient {
 
     public OllamaClient(ModelAccount account) {
         super(account);
+    }
+
+    public OllamaClient(String modelName, ModelAccount account) {
+        super(modelName, account);
     }
 
     private OllamaTextRequest buildOllamaTextRequest(String message, MediaData mediaData, List<ChatHistory> history) {
@@ -106,32 +112,6 @@ public class OllamaClient extends AiBaseClient {
         return history;
     }
 
-//    private void buildStreamChatHistory(String message, String[] images, StringBuffer aiText, List<OllamaChatHistory> history) {
-//
-//        if (history == null) {
-//            history = new ArrayList<>();
-//        }
-//
-//        // add user chat message
-//        if (images != null) {
-//            OllamaMultiChatHistory chatHistory = OllamaMultiChatHistory.builder().role("user").content(message).images(images).build();
-//            history.add(chatHistory);
-//        }else{
-//            OllamaChatHistory chatHistory = OllamaChatHistory.builder().role("user").content(message).build();
-//            history.add(chatHistory);
-//        }
-//
-//        if (aiText.length() != 0) {
-//            OllamaChatHistory aiChat = OllamaChatHistory.builder().content(aiText.toString()).role("assistant").build();
-//            history.add(aiChat);
-//        }
-//
-//        // max 10 chat history
-//        if (history.size() > 10) {
-//            history = history.subList(0, 10);
-//        }
-//    }
-
     @Override
     protected String getDefaultModelName() {
 
@@ -149,15 +129,20 @@ public class OllamaClient extends AiBaseClient {
     }
 
     @Override
-    protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, List<ChatHistory> history) {
+    protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
 
         OllamaTextRequest questParams = this.buildOllamaTextRequest(message, mediaData, history);
+        questParams.setStream(stream);
 
         if (generationConfig != null) {
-            OllamaRequestOptions options = OllamaRequestOptions.builder().temperature(generationConfig.getTemperature())
-                    .topK(generationConfig.getTopK()).topP(generationConfig.getTopP())
-                    .stop(Arrays.asList(generationConfig.getStop())).build();
-            questParams.setOptions(options);
+            OllamaRequestOptions.OllamaRequestOptionsBuilder builder = OllamaRequestOptions.builder();
+
+            Optional.ofNullable(generationConfig.getTemperature()).ifPresent(builder::temperature);
+            Optional.ofNullable(generationConfig.getTopK()).ifPresent(builder::topK);
+            Optional.ofNullable(generationConfig.getTopP()).ifPresent(builder::topP);
+            Optional.ofNullable(generationConfig.getStop()).ifPresent(stop -> builder.stop(Arrays.asList(stop)));
+
+            questParams.setOptions(builder.build());
         }
 
         return JSON.parseObject(JSON.toJSONString(questParams));
@@ -186,4 +171,26 @@ public class OllamaClient extends AiBaseClient {
 
         return response;
     }
+
+    @Override
+    protected AiStreamMessage buildStreamMessage(String responseLine) {
+        OllamaStreamResponse streamResponse = JSON.parseObject(responseLine, OllamaStreamResponse.class);
+
+        Boolean done = streamResponse.getDone();
+        if (done) {
+            return AiStreamMessage.builder().stop(true).build();
+        }
+
+        OllamaAiChatMessage streamMessage = streamResponse.getMessage();
+
+        return AiStreamMessage.builder().stop(false).content(streamMessage.getContent()).role(streamMessage.getRole()).build();
+    }
+
+    @Override
+    protected void buildStreamChatHistory(String message, MediaData mediaData, String aiMessage, List<ChatHistory> history) {
+
+        OllamaAiChatMessage resMessage = OllamaAiChatMessage.builder().role("assistant").content(aiMessage).build();
+        this.buildChatHistory(message, mediaData, resMessage, history);
+    }
+
 }

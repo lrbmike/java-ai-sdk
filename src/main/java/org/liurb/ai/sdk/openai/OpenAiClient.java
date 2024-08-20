@@ -6,6 +6,7 @@ import org.liurb.ai.sdk.common.AiBaseClient;
 import org.liurb.ai.sdk.common.bean.*;
 import org.liurb.ai.sdk.common.dto.AiChatResponse;
 import org.liurb.ai.sdk.openai.bean.*;
+import org.liurb.ai.sdk.openai.dto.OpenAiStreamResponse;
 import org.liurb.ai.sdk.openai.dto.OpenAiTextRequest;
 import org.liurb.ai.sdk.openai.dto.OpenAiTextResponse;
 import org.liurb.ai.sdk.openai.enums.OpenAiModelEnum;
@@ -19,85 +20,9 @@ public class OpenAiClient extends AiBaseClient {
         super(account);
     }
 
-//    public void stream(String message, MaterialData materialData, OpenAiGenerationConfig generationConfig, List<ChatHistory> history, OpenAiStreamResponseListener responseListener) throws IOException {
-//
-//        if (this.openaiAccount == null || this.openaiAccount.getApiKey() == null || this.openaiAccount.getApiKey().isEmpty()) {
-//            throw new RuntimeException("gemini api key is empty");
-//        }
-//
-//        if (this.openaiAccount.getBaseUrl() != null && !this.openaiAccount.getBaseUrl().isEmpty()) {
-//            this.BASE_URL = this.openaiAccount.getBaseUrl();
-//        }
-//
-//        OpenAiTextRequest questParams = this.buildOpenAiTextRequest(message, materialData, history);
-//        questParams.setStream(true);
-//
-//        if (generationConfig != null) {
-//            questParams.setTemperature(generationConfig.getTemperature());
-//            questParams.setMaxTokens(generationConfig.getMaxTokens());
-//            questParams.setTopP(generationConfig.getTopP());
-//            questParams.setN(generationConfig.getN());
-//            questParams.setStop(generationConfig.getStop());
-//        }
-//
-//        MediaType json = MediaType.parse("application/json; charset=utf-8");
-//        RequestBody requestBody = RequestBody.create(json, JSON.toJSONString(questParams));
-//
-//        String url = "{base_url}/v1/chat/completions";
-//        url = url.replace("{base_url}", this.BASE_URL);
-//
-//        Request request = new Request.Builder()
-//                .url(url)
-//                .addHeader("Authorization", "Bearer " + this.openaiAccount.getApiKey())
-//                .post(requestBody)
-//                .build();
-//
-//        this.okHttpClient.newCall(request).enqueue(new Callback() {
-//
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                if (response.isSuccessful()) {
-//                    try (ResponseBody responseBody = response.body()) {
-//
-//                        StringBuffer textSb = new StringBuffer();
-//
-//                        InputStream inputStream = responseBody.byteStream();
-//                        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-//                        String line;
-//                        while ((line = reader.readLine()) != null) {
-//                            line = line.trim();
-//                            System.out.println(line);
-//                            if (line.startsWith("data: ")) {
-//                                line = line.substring("data: ".length());
-//                                if ("[DONE]".equals(line)) {
-//                                    break;
-//                                }
-//                                OpenAiStreamResponse streamResponse = JSON.parseObject(line, OpenAiStreamResponse.class);
-//
-//                                StreamChoice streamChoice = streamResponse.getChoices().get(0);
-//                                AiMessage content = streamChoice.getDelta();
-//
-//                                textSb.append(content.getContent());
-//
-//                                responseListener.accept(streamChoice);
-//                            }
-//                        }
-//
-//                        //handle history
-//                        buildStreamChatHistory(message, materialData, textSb, history);
-//
-//                    }
-//                }
-//            }
-//        });
-//
-//    }
-
+    public OpenAiClient(String modelName, ModelAccount account) {
+        super(modelName, account);
+    }
 
     private OpenAiTextRequest buildOpenAiTextRequest(String message, MediaData mediaData, List<ChatHistory> history) {
 
@@ -184,34 +109,6 @@ public class OpenAiClient extends AiBaseClient {
         return history;
     }
 
-//    private List<ChatHistory> buildStreamChatHistory(String message, MaterialData materialData, StringBuffer aiText, List<ChatHistory> history) {
-//
-//        if (history == null) {
-//            history = new ArrayList<>();
-//        }
-//
-//        // add user chat message
-//        if (materialData != null) {
-//            OpenAiMultiChatHistory chatHistory = OpenAiMultiChatHistory.builder().role("user").text(message).materialData(materialData).build();
-//            history.add(chatHistory);
-//        }else{
-//            ChatHistory chatHistory = ChatHistory.builder().role("user").text(message).build();
-//            history.add(chatHistory);
-//        }
-//
-//        if (aiText.length() != 0) {
-//            ChatHistory aiChat = ChatHistory.builder().text(aiText.toString()).role("assistant").build();
-//            history.add(aiChat);
-//        }
-//
-//        // max 10 chat history
-//        if (history.size() > 10) {
-//            history = history.subList(0, 10);
-//        }
-//
-//        return history;
-//    }
-
     @Override
     protected String getDefaultModelName() {
 
@@ -231,9 +128,11 @@ public class OpenAiClient extends AiBaseClient {
     }
 
     @Override
-    protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, List<ChatHistory> history) {
+    protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
 
         OpenAiTextRequest questParams = this.buildOpenAiTextRequest(message, mediaData, history);
+        questParams.setStream(stream);
+
         if (generationConfig != null) {
             questParams.setTemperature(generationConfig.getTemperature());
             questParams.setMaxTokens(generationConfig.getMaxTokens());
@@ -260,6 +159,32 @@ public class OpenAiClient extends AiBaseClient {
         response.setHistory(newHistory);
 
         return response;
+    }
+
+    @Override
+    protected AiStreamMessage buildStreamMessage(String responseLine) {
+
+        if (responseLine.startsWith("data: ")) {
+            responseLine = responseLine.substring("data: ".length());
+            if ("[DONE]".equals(responseLine)) {
+                return AiStreamMessage.builder().stop(true).build();
+            }
+
+            OpenAiStreamResponse streamResponse = JSON.parseObject(responseLine, OpenAiStreamResponse.class);
+            StreamChoice streamChoice = streamResponse.getChoices().get(0);
+            OpenAiMessage content = streamChoice.getDelta();
+
+            return AiStreamMessage.builder().stop(false).content(content.getContent()).role(content.getRole()).build();
+        }
+
+        return null;
+    }
+
+    @Override
+    protected void buildStreamChatHistory(String message, MediaData mediaData, String aiMessage, List<ChatHistory> history) {
+
+        ChatMessage resMessage = ChatMessage.builder().role("assistant").content(aiMessage).build();
+        this.buildChatHistory(message, mediaData, resMessage, history);
     }
 
 }

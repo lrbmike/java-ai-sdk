@@ -13,6 +13,7 @@ import org.liurb.ai.sdk.gemini.enums.GeminiModelEnum;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 public class GeminiClient extends AiBaseClient {
@@ -22,102 +23,9 @@ public class GeminiClient extends AiBaseClient {
         super(account);
     }
 
-//    public void stream(String message, GeminiStreamResponseListener responseListener) throws IOException {
-//
-//        this.stream(message, null, null, null, responseListener);
-//    }
-//
-//    public void stream(String message, GeminiGenerationConfig generationConfig, GeminiStreamResponseListener responseListener) throws IOException {
-//
-//        this.stream(message, null, generationConfig, null, responseListener);
-//    }
-//
-//    public void stream(String message, List<ChatHistory> history, GeminiStreamResponseListener responseListener) throws IOException {
-//
-//        this.stream(message, null, null, history, responseListener);
-//    }
-//
-//    public void stream(String message, GeminiGenerationConfig generationConfig, List<ChatHistory> history, GeminiStreamResponseListener responseListener) throws IOException {
-//
-//        this.stream(message, null, generationConfig, history, responseListener);
-//    }
-//
-//    public void stream(String message, MultiPartInlineData inlineData, GeminiStreamResponseListener responseListener) throws IOException {
-//
-//        this.stream(message, inlineData, null, null, responseListener);
-//    }
-//
-//    public void stream(String message, MultiPartInlineData inlineData, GeminiGenerationConfig generationConfig, List<ChatHistory> history, GeminiStreamResponseListener responseListener) throws IOException {
-//
-//        if (this.geminiAccount == null || this.geminiAccount.getApiKey() == null || this.geminiAccount.getApiKey().isEmpty()) {
-//            throw new RuntimeException("gemini api key is empty");
-//        }
-//
-//        if (this.geminiAccount.getBaseUrl() != null && !this.geminiAccount.getBaseUrl().isEmpty()) {
-//            this.BASE_URL = this.geminiAccount.getBaseUrl();
-//        }
-//
-//        //build gemini request body
-//        GeminiTextRequest questParams = this.buildGeminiTextRequest(message, inlineData, history);
-//
-//        if (generationConfig != null) {
-//            questParams.setGenerationConfig(generationConfig);
-//        }
-//
-//        MediaType json = MediaType.parse("application/json; charset=utf-8");
-//        RequestBody requestBody = RequestBody.create(json, JSON.toJSONString(questParams));
-//
-//        // Be sure to set alt=sse in the URL parameters
-//        String url = "{base_url}/v1/{model}:streamGenerateContent?key={api_key}&alt=sse";
-//        url = url.replace("{base_url}", this.BASE_URL)
-//                .replace("{api_key}", this.geminiAccount.getApiKey())
-//                .replace("{model}", this.MODEL_NAME);
-//
-//        Request request = new Request.Builder()
-//                .url(url)
-//                .post(requestBody)
-//                .build();
-//
-//        this.okHttpClient.newCall(request).enqueue(new Callback() {
-//
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                if (response.isSuccessful()) {
-//                    try (ResponseBody responseBody = response.body()) {
-//
-//                        StringBuffer textSb = new StringBuffer();
-//
-//                        InputStream inputStream = responseBody.byteStream();
-//                        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-//                        String line;
-//                        while ((line = reader.readLine()) != null) {
-//                            line = line.trim();
-//                            if (line.startsWith("data: ")) {
-//                                line = line.substring("data: ".length());
-//                                GeminiTextResponse streamResponse = JSON.parseObject(line, GeminiTextResponse.class);
-//
-//                                Content content = streamResponse.getCandidates().get(0).getContent();
-//
-//                                textSb.append(content.getParts().get(0).getText());
-//
-//                                responseListener.accept(content);
-//                            }
-//                        }
-//
-//                        //handle history
-//                        buildStreamChatHistory(message, inlineData, textSb, history);
-//
-//                    }
-//                }
-//            }
-//        });
-//
-//    }
+    public GeminiClient(String modelName, ModelAccount account) {
+        super(modelName, account);
+    }
 
     private GeminiTextRequest buildGeminiTextRequest(String message, MediaData mediaData, List<ChatHistory> history) {
 
@@ -198,34 +106,6 @@ public class GeminiClient extends AiBaseClient {
         return history;
     }
 
-//    private List<ChatHistory> buildStreamChatHistory(String message, MultiPartInlineData inlineData, StringBuffer aiText, List<ChatHistory> history) {
-//
-//        if (history == null) {
-//            history = new ArrayList<>();
-//        }
-//
-//        // add user chat message
-//        if (inlineData != null) {
-//            GeminiChatHistory geminiChatHistory = GeminiChatHistory.builder().content(message).role("user").inlineData(inlineData).build();
-//            history.add(geminiChatHistory);
-//        }else{
-//            ChatHistory chatHistory = ChatHistory.builder().content(message).role("user").build();
-//            history.add(chatHistory);
-//        }
-//
-//        if (aiText.length() != 0) {
-//            ChatHistory aiChat = ChatHistory.builder().content(aiText.toString()).role("model").build();
-//            history.add(aiChat);
-//        }
-//
-//        // max 10 chat history
-//        if (history.size() > 10) {
-//            history = history.subList(0, 10);
-//        }
-//
-//        return history;
-//    }
-
     @Override
     protected String getDefaultModelName() {
 
@@ -241,23 +121,29 @@ public class GeminiClient extends AiBaseClient {
     @Override
     protected String getApi() {
         String api = "/v1/{model}:generateContent?key={api_key}";
+        if (this.getStreaming()) {//stream api
+            api = "/v1/{model}:streamGenerateContent?key={api_key}&alt=sse";
+        }
         api = api.replace("{api_key}", this.getAccount().getApiKey())
                 .replace("{model}", this.getModelName());
         return api;
     }
 
     @Override
-    protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, List<ChatHistory> history) {
+    protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
 
         GeminiTextRequest questParams = this.buildGeminiTextRequest(message, mediaData, history);
-        if (generationConfig != null) {
-            GeminiGenerationConfig geminiGenerationConfig = GeminiGenerationConfig.builder()
-                    .temperature(generationConfig.getTemperature()).topP(generationConfig.getTopP())
-                    .topK(generationConfig.getTopK()).maxOutputTokens(generationConfig.getMaxTokens())
-                    .stopSequences(Arrays.asList(generationConfig.getStop()))
-                    .build();
 
-            questParams.setGenerationConfig(geminiGenerationConfig);
+        if (generationConfig != null) {
+            GeminiGenerationConfig.GeminiGenerationConfigBuilder geminiBuilder = GeminiGenerationConfig.builder();
+
+            Optional.ofNullable(generationConfig.getTemperature()).ifPresent(geminiBuilder::temperature);
+            Optional.ofNullable(generationConfig.getTopP()).ifPresent(geminiBuilder::topP);
+            Optional.ofNullable(generationConfig.getTopK()).ifPresent(geminiBuilder::topK);
+            Optional.ofNullable(generationConfig.getMaxTokens()).ifPresent(geminiBuilder::maxOutputTokens);
+            Optional.ofNullable(generationConfig.getStop()).ifPresent(stop -> geminiBuilder.stopSequences(Arrays.asList(stop)));
+
+            questParams.setGenerationConfig(geminiBuilder.build());
         }
 
         return JSON.parseObject(JSON.toJSONString(questParams));
@@ -279,6 +165,26 @@ public class GeminiClient extends AiBaseClient {
         response.setHistory(newHistory);
 
         return response;
+    }
+
+    @Override
+    protected AiStreamMessage buildStreamMessage(String responseLine) {
+        if (responseLine.startsWith("data: ")) {
+            responseLine = responseLine.substring("data: ".length());
+
+            GeminiTextResponse streamResponse = JSON.parseObject(responseLine, GeminiTextResponse.class);
+
+            Content content = streamResponse.getCandidates().get(0).getContent();
+
+            return AiStreamMessage.builder().stop(false).content(content.getParts().get(0).getText()).role("model").build();
+        }
+        return null;
+    }
+
+    @Override
+    protected void buildStreamChatHistory(String message, MediaData mediaData, String aiMessage, List<ChatHistory> history) {
+        ChatMessage resMessage = ChatMessage.builder().role("model").content(aiMessage).build();
+        this.buildChatHistory(message, mediaData, resMessage, history);
     }
 
 }
