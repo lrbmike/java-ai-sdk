@@ -2,6 +2,7 @@ package org.liurb.ai.sdk.common;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.liurb.ai.sdk.common.bean.*;
@@ -15,6 +16,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public abstract class AiBaseClient {
 
     private ModelAccount account;
@@ -100,7 +102,7 @@ public abstract class AiBaseClient {
                         String line;
                         while ((line = reader.readLine()) != null) {
                             line = line.trim();
-                            System.out.println(line);
+                            log.debug(line);
 
                             AiStreamMessage streamMessage = buildStreamMessage(line);
                             if (streamMessage != null) {
@@ -117,6 +119,9 @@ public abstract class AiBaseClient {
                         //handle history
                         buildStreamChatHistory(message, mediaData, textSb.toString(), history);
 
+                    } finally {
+                        //finish callback
+                        responseListener.accept(AiStreamMessage.builder().stop(true).build());
                     }
                 }
             }
