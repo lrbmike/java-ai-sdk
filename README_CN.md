@@ -39,10 +39,10 @@
 ModelAccount account = ModelAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 ```
 
-默认使用 `models/gemini-1.5-flash` 模型，当然也可以通过构造函数，自定义配置
+构建请求对象
 
 ```java
-public GeminiClient(String modelName, ModelAccount account) 
+public GeminiClient(ModelAccount account) 
 ```
 
 普通对话
@@ -56,6 +56,8 @@ public void chatTest() throws IOException {
     GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
 
     GeminiClient client = new GeminiClient(account);
+   	// 默认使用 `models/gemini-1.5-flash` 模型，也可自定义配置
+    // client.chat("models/gemini-1.5-pro", who are you", generationConfig);
     AiChatResponse chatResponse = client.chat("who are you", generationConfig);
     System.out.println(chatResponse);
 }
@@ -99,7 +101,7 @@ public void chatMultiModalTest() throws IOException {
 
     GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
 
-    GeminiClient client = new GeminiClient(GeminiModelEnum.GEMINI_PRO.getName(), account);
+    GeminiClient client = new GeminiClient(account);
 
     // image url
     String imageUrl = "https://pic.qqtn.com/uploadfiles/2009-6/2009614181816.jpg";

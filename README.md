@@ -39,10 +39,10 @@ Configure the  `API KEY`  through the `ModelAccount` settings. If you need to us
 ModelAccount account = ModelAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 ```
 
-By default, the `models/gemini-1.5-flash` model is used, but you can also customize the configuration through the constructor.
+Build a request client
 
 ```java
-public GeminiClient(String modelName, ModelAccount account) 
+public GeminiClient(ModelAccount account) 
 ```
 
 Chat
@@ -56,6 +56,8 @@ public void chatTest() throws IOException {
     GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
 
     GeminiClient client = new GeminiClient(account);
+    // By default, use the models/gemini-1.5-flash model, or customize the configuration.
+    // client.chat("models/gemini-1.5-pro", who are you", generationConfig);
     AiChatResponse chatResponse = client.chat("who are you", generationConfig);
     System.out.println(chatResponse);
 }
