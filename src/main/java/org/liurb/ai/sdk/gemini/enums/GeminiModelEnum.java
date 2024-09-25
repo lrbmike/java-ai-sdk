@@ -13,7 +13,7 @@ import lombok.Getter;
 @Getter
 public enum GeminiModelEnum {
 
-    GEMINI_PRO_FLASH("models/gemini-1.5-flash"),
+    GEMINI_FLASH("models/gemini-1.5-flash"),
     GEMINI_PRO("models/gemini-1.5-pro"),
     GEMINI_PRO_VISION("models/gemini-pro-vision"),
     EMBEDDING_001("models/text-embedding-004"),

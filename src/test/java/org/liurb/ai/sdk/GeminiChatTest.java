@@ -28,10 +28,8 @@ public class GeminiChatTest
 
         ModelAccount account = ModelAccount.builder().apiKey(apiKey).baseUrl(baseUrl).build();
 
-        GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
-
         GeminiClient client = new GeminiClient(account);
-        AiChatResponse chatResponse = client.chat("who are you", generationConfig);
+        AiChatResponse chatResponse = client.chat("who are you");
         System.out.println(chatResponse);
     }
 
@@ -66,7 +64,7 @@ public class GeminiChatTest
 
         GenerationConfig generationConfig = GenerationConfig.builder().temperature(0.3).build();
 
-        GeminiClient client = new GeminiClient(GeminiModelEnum.GEMINI_PRO.getName(), account);
+        GeminiClient client = new GeminiClient(account);
 
         // local image
 //        Path img = Paths.get("/path/abc.jpg");

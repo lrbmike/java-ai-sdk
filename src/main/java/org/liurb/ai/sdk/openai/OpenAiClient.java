@@ -20,11 +20,7 @@ public class OpenAiClient extends AiBaseClient {
         super(account);
     }
 
-    public OpenAiClient(String modelName, ModelAccount account) {
-        super(modelName, account);
-    }
-
-    private OpenAiTextRequest buildOpenAiTextRequest(String message, MediaData mediaData, List<ChatHistory> history) {
+    private OpenAiTextRequest buildOpenAiTextRequest(String modelName, String message, MediaData mediaData, List<ChatHistory> history) {
 
         List<OpenAiChatMessage> messages = new ArrayList<>();
 
@@ -51,7 +47,7 @@ public class OpenAiClient extends AiBaseClient {
         OpenAiChatMessage chatMessage = this.buildChatMessage(message, "user", mediaData);
         messages.add(chatMessage);
 
-        return OpenAiTextRequest.builder().model(this.getModelName()).messages(messages).build();
+        return OpenAiTextRequest.builder().model(modelName).messages(messages).build();
     }
 
     private OpenAiChatMessage buildChatMessage(String message, String role) {
@@ -122,15 +118,15 @@ public class OpenAiClient extends AiBaseClient {
     }
 
     @Override
-    protected String getApi() {
+    protected String getApi(String modelName) {
 
         return "/v1/chat/completions";
     }
 
     @Override
-    protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
+    protected JSONObject buildChatRequest(String modelName, String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
 
-        OpenAiTextRequest questParams = this.buildOpenAiTextRequest(message, mediaData, history);
+        OpenAiTextRequest questParams = this.buildOpenAiTextRequest(modelName, message, mediaData, history);
         questParams.setStream(stream);
 
         if (generationConfig != null) {

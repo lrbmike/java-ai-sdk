@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 public abstract class AiBaseClient {
 
     private ModelAccount account;
-    private String MODEL_NAME;
     private OkHttpClient okHttpClient;
     private boolean stream;
 
@@ -28,37 +27,53 @@ public abstract class AiBaseClient {
     private AiBaseClient() {}
 
     public AiBaseClient(ModelAccount account) {
-        this.MODEL_NAME = this.getDefaultModelName();
         this.account = account;
         this.okHttpClient = this.getDefaultClient();
     }
 
-    public AiBaseClient(String modelName, ModelAccount account) {
-        this.MODEL_NAME = modelName;
-        this.account = account;
-        this.okHttpClient = this.getDefaultClient();
-    }
-
-    public AiBaseClient(String modelName, ModelAccount account, OkHttpClient okHttpClient) {
-        this.MODEL_NAME = modelName;
+    public AiBaseClient(ModelAccount account, OkHttpClient okHttpClient) {
         this.account = account;
         this.okHttpClient = okHttpClient;
     }
 
+    public AiChatResponse chat(String message) throws IOException {
+
+        return this.chat(this.getDefaultModelName(), message);
+    }
+
+    public AiChatResponse chat(String modelName, String message) throws IOException {
+
+        return this.chat(modelName, message, null);
+    }
+
     public AiChatResponse chat(String message, GenerationConfig generationConfig) throws IOException {
 
-        return this.chat(message, null, generationConfig, null);
+        return this.chat(this.getDefaultModelName(), message, generationConfig);
+    }
+
+    public AiChatResponse chat(String modelName, String message, GenerationConfig generationConfig) throws IOException {
+
+        return this.chat(modelName, message, generationConfig, null);
     }
 
     public AiChatResponse chat(String message, GenerationConfig generationConfig, List<ChatHistory> history) throws IOException {
 
-        return this.chat(message, null, generationConfig, history);
+        return this.chat(this.getDefaultModelName(), message, null, generationConfig, history);
+    }
+
+    public AiChatResponse chat(String modelName, String message, GenerationConfig generationConfig, List<ChatHistory> history) throws IOException {
+
+        return this.chat(modelName, message, null, generationConfig, history);
     }
 
     public AiChatResponse chat(String message, MediaData mediaData, GenerationConfig generationConfig, List<ChatHistory> history) throws IOException {
+        return this.chat(this.getDefaultModelName(), message, mediaData, generationConfig, history);
+    }
+
+    public AiChatResponse chat(String modelName, String message, MediaData mediaData, GenerationConfig generationConfig, List<ChatHistory> history) throws IOException {
         this.stream = false;
 
-        Request request = this.buildHttpRequest(message, mediaData, generationConfig, false, history);
+        Request request = this.buildHttpRequest(modelName, message, mediaData, generationConfig, false, history);
 
         Response response = this.okHttpClient.newCall(request).execute();
         if (response.isSuccessful()) {
@@ -70,18 +85,39 @@ public abstract class AiBaseClient {
         return null;
     }
 
+    public void stream(String message, AiStreamResponseListener responseListener) throws IOException {
+        this.stream(this.getDefaultModelName(), message, responseListener);
+    }
+
+
+    public void stream(String modelName, String message, AiStreamResponseListener responseListener) throws IOException {
+        this.stream(modelName, message, null, null, responseListener);
+    }
+
     public void stream(String message, GenerationConfig generationConfig, AiStreamResponseListener responseListener) throws IOException {
-        this.stream(message, null, generationConfig, null, responseListener);
+        this.stream(this.getDefaultModelName(), message, null, generationConfig, null, responseListener);
+    }
+
+    public void stream(String modelName, String message, GenerationConfig generationConfig, AiStreamResponseListener responseListener) throws IOException {
+        this.stream(modelName, message, null, generationConfig, null, responseListener);
     }
 
     public void stream(String message, GenerationConfig generationConfig, List<ChatHistory> history, AiStreamResponseListener responseListener) throws IOException {
-        this.stream(message, null, generationConfig, history, responseListener);
+        this.stream(this.getDefaultModelName(), message, null, generationConfig, history, responseListener);
+    }
+
+    public void stream(String modelName, String message, GenerationConfig generationConfig, List<ChatHistory> history, AiStreamResponseListener responseListener) throws IOException {
+        this.stream(modelName, message, null, generationConfig, history, responseListener);
     }
 
     public void stream(String message, MediaData mediaData, GenerationConfig generationConfig, List<ChatHistory> history, AiStreamResponseListener responseListener) throws IOException {
+        this.stream(this.getDefaultModelName(), message, mediaData, generationConfig, history, responseListener);
+    }
+
+    public void stream(String modelName, String message, MediaData mediaData, GenerationConfig generationConfig, List<ChatHistory> history, AiStreamResponseListener responseListener) throws IOException {
         this.stream = true;
 
-        Request request = this.buildHttpRequest(message, mediaData, generationConfig, true, history);
+        Request request = this.buildHttpRequest(modelName, message, mediaData, generationConfig, true, history);
 
         this.okHttpClient.newCall(request).enqueue(new Callback() {
 
@@ -129,18 +165,18 @@ public abstract class AiBaseClient {
 
     }
 
-    private Request buildHttpRequest(String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
+    private Request buildHttpRequest(String modelName, String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
         String baseUrl = this.getDefaultBaseUrl();
         if (this.getAccount() != null && this.getAccount().getBaseUrl() != null && !this.getAccount().getBaseUrl().isEmpty()) {
             baseUrl = this.getAccount().getBaseUrl();
         }
 
-        JSONObject chatRequestParams = this.buildChatRequest(message, mediaData, generationConfig, stream, history);
+        JSONObject chatRequestParams = this.buildChatRequest(modelName, message, mediaData, generationConfig, stream, history);
 
         MediaType json = MediaType.parse("application/json; charset=utf-8");
         RequestBody requestBody = RequestBody.create(json, JSON.toJSONString(chatRequestParams));
 
-        String url = baseUrl + this.getApi();
+        String url = baseUrl + this.getApi(modelName);
 
         return new Request.Builder()
                 .url(url)
@@ -168,10 +204,6 @@ public abstract class AiBaseClient {
         return this.account;
     }
 
-    protected String getModelName() {
-        return this.MODEL_NAME;
-    }
-
     protected boolean getStreaming() {
         return this.stream;
     }
@@ -195,13 +227,15 @@ public abstract class AiBaseClient {
      *
      * 如:/api/chat
      *
+     * @param modelName
      * @return
      */
-    protected abstract String getApi();
+    protected abstract String getApi(String modelName);
 
     /**
      * 子类构建请求参数
      *
+     * @param modelName
      * @param message
      * @param mediaData
      * @param generationConfig
@@ -209,7 +243,7 @@ public abstract class AiBaseClient {
      * @param history
      * @return
      */
-    protected abstract JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history);
+    protected abstract JSONObject buildChatRequest(String modelName, String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history);
 
     /**
      * 子类构建返回内容

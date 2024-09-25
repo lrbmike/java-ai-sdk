@@ -23,11 +23,7 @@ public class GeminiClient extends AiBaseClient {
         super(account);
     }
 
-    public GeminiClient(String modelName, ModelAccount account) {
-        super(modelName, account);
-    }
-
-    private GeminiTextRequest buildGeminiTextRequest(String message, MediaData mediaData, List<ChatHistory> history) {
+    private GeminiTextRequest buildGeminiTextRequest(String modelName, String message, MediaData mediaData, List<ChatHistory> history) {
 
         List<GeminiChatMessage> contents = new ArrayList<>();
 
@@ -109,7 +105,7 @@ public class GeminiClient extends AiBaseClient {
     @Override
     protected String getDefaultModelName() {
 
-        return GeminiModelEnum.GEMINI_PRO_FLASH.getName();
+        return GeminiModelEnum.GEMINI_FLASH.getName();
     }
 
     @Override
@@ -119,20 +115,20 @@ public class GeminiClient extends AiBaseClient {
     }
 
     @Override
-    protected String getApi() {
+    protected String getApi(String modelName) {
         String api = "/v1/{model}:generateContent?key={api_key}";
         if (this.getStreaming()) {//stream api
             api = "/v1/{model}:streamGenerateContent?key={api_key}&alt=sse";
         }
         api = api.replace("{api_key}", this.getAccount().getApiKey())
-                .replace("{model}", this.getModelName());
+                .replace("{model}", modelName);
         return api;
     }
 
     @Override
-    protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
+    protected JSONObject buildChatRequest(String modelName, String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
 
-        GeminiTextRequest questParams = this.buildGeminiTextRequest(message, mediaData, history);
+        GeminiTextRequest questParams = this.buildGeminiTextRequest(modelName, message, mediaData, history);
 
         if (generationConfig != null) {
             GeminiGenerationConfig.GeminiGenerationConfigBuilder geminiBuilder = GeminiGenerationConfig.builder();

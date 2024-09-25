@@ -26,7 +26,7 @@ public class OllamaStreamTest {
 
         List<ChatHistory> history = new ArrayList<>();
 
-        client.stream("Do you know something about Yao Ming", null, generationConfig, history, new AiStreamResponseListener() {
+        client.stream("Do you know something about Yao Ming", generationConfig, history, new AiStreamResponseListener() {
             @Override
             public void accept(AiStreamMessage streamMessage) {
                 System.out.println("accept1:" + streamMessage.getContent());
@@ -35,7 +35,7 @@ public class OllamaStreamTest {
 
         Thread.sleep(30 * 1000);
 
-        client.stream("who is his wife", null, generationConfig, history, new AiStreamResponseListener() {
+        client.stream("who is his wife", generationConfig, history, new AiStreamResponseListener() {
             @Override
             public void accept(AiStreamMessage streamMessage) {
                 System.out.println("accept2:" + streamMessage.getContent());

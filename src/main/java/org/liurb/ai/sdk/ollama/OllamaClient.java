@@ -26,11 +26,7 @@ public class OllamaClient extends AiBaseClient {
         super(account);
     }
 
-    public OllamaClient(String modelName, ModelAccount account) {
-        super(modelName, account);
-    }
-
-    private OllamaTextRequest buildOllamaTextRequest(String message, MediaData mediaData, List<ChatHistory> history) {
+    private OllamaTextRequest buildOllamaTextRequest(String modelName, String message, MediaData mediaData, List<ChatHistory> history) {
 
         List<OllamaChatMessage> messages = new ArrayList<>();
 
@@ -61,7 +57,7 @@ public class OllamaClient extends AiBaseClient {
         OllamaChatMessage chatMessage = this.buildChatMessage(message, "user", mediaData);
         messages.add(chatMessage);
 
-        return OllamaTextRequest.builder().model(this.getModelName()).messages(messages).build();
+        return OllamaTextRequest.builder().model(modelName).messages(messages).build();
     }
 
     private OllamaChatMessage buildChatMessage(String message, String role) {
@@ -115,7 +111,7 @@ public class OllamaClient extends AiBaseClient {
     @Override
     protected String getDefaultModelName() {
 
-        return OllamaModelEnum.QWEN2_MIN.getName();
+        return OllamaModelEnum.QWEN2_5.getName();
     }
 
     @Override
@@ -124,14 +120,14 @@ public class OllamaClient extends AiBaseClient {
     }
 
     @Override
-    protected String getApi() {
+    protected String getApi(String modelName) {
         return "/api/chat";
     }
 
     @Override
-    protected JSONObject buildChatRequest(String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
+    protected JSONObject buildChatRequest(String modelName, String message, MediaData mediaData, GenerationConfig generationConfig, boolean stream, List<ChatHistory> history) {
 
-        OllamaTextRequest questParams = this.buildOllamaTextRequest(message, mediaData, history);
+        OllamaTextRequest questParams = this.buildOllamaTextRequest(modelName, message, mediaData, history);
         questParams.setStream(stream);
 
         if (generationConfig != null) {
